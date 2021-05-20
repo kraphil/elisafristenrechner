@@ -2,34 +2,19 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 from pandas.tseries.offsets import MonthEnd
+import logging
 
 import flask
 from flask import request
-"""
-message = [
-    {"conversationId": "1",
-    "type": "webhook",
-    "name": "message_sent",
-    "messages": [
-      {"type": "message",
-       "data":
-           {"type": "text/plain",
-            "content": "30.09.2021"
-           }
-       }]
-     }
-]
+
+logging.basicConfig( level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("debug.log"),
+        logging.StreamHandler()
+    ]
+)
 
 
-def days_between(d1, d2):
-    d1 = datetime.strptime(d1, "%d.%m.%Y")
-    d2 = datetime.strptime(d2, "%d.%m.%Y")
-    print(abs((d2 - d1).days))
-
-
-days_between('30.09.2021', '01.07.2021')
-
-"""
 #Ausgabe Tag des Kündigungstags bei Angabe Kündigungstermin (Tag des Auszugs)
 #Eingabe: Tag des Auszugs (Kündigungstermin)
 def noticePeriod(date):
@@ -50,8 +35,6 @@ def noticePeriod(date):
         latest_notice_date = date + timedelta(days=3)
         print(latest_notice_date)
         return(latest_notice_date)
-
-#noticePeriod('31.01.2021')
 
 
 #Ausgabe Tag des Auszugs (Kündigungstermin) bei Angabe Kündigungstag
@@ -81,15 +64,35 @@ def dayMoveOut(date):
         print(dmo)
         return dmo
 
-#dayMoveOut('05.08.2021') 
 
-"""
-def extractDate(userMessage):
+def extractIntent(userMessage):
     if(len(userMessage) == 0):
-        date = ""
+        intent = ""
     else:
-        date = userMessage['messages'][0]['data']['content']
-    return date
+        intent = userMessage['messages'][0]['data']['content']
+    return intent
+
+def extractConversationId(userMessage):
+    if(len(userMessage) == 0):
+        conversationId = ""
+    else:
+        conversationId = userMessage['conversationId']
+    return conversationId    
+
+def createAnswer(conversationId, DateTime):
+    payload = {
+      "conversationId" : conversationId,
+      "messages": [
+        {
+          "type" : "message",
+          "data" : {
+            "type" : "text/plain",
+            "content" : DateTime
+          }
+        }
+      ]
+    }
+    return json.dumps(payload)
 
 
 #App
@@ -99,24 +102,73 @@ app.config["DEBUG"] = True
 
 @app.route("/0.0.0.0", methods=["GET"])
 def defaultFunction():
-    return ""<h1>Fristenrechner</p>"" ###einmal anführungsstriche ergänzen
+    return """<h1>Fristenrechner</h1>""" ###einmal anführungsstriche ergänzen
 
 
 @app.route("/", methods=["GET"])  # localhost
 def home():
-    return ""<h1>Fristenrechner</p>"" ###einmal anführungsstriche ergänzen
+    return """<h1>Fristenrechner</h1>""" ###einmal anführungsstriche ergänzen
 
 
 @app.route("/noticePeriod", methods=["POST"])
 def api_response_message():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
     message =  request.get_json(force=True)
-    date = extractDate(message)
-    if(len(date) == 0):
-        return "No date was detected!"    
-    notice = noticePeriod(date)
-    return (notice)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    intent = extractIntent(message)
+
+    if(len(intent) == 0):
+        DateTime = "No date time was detected!"
+    else:    
+        DateTime = noticePeriod(intent)
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
+
+
+@app.route("/daymoveout", methods=["POST"])
+def api_response_message():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
+    message =  request.get_json(force=True)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    intent = extractIntent(message)
+
+    if(len(intent) == 0):
+        DateTime = "No date time was detected!"
+    else:    
+        DateTime = dayMoveOut(intent)
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-"""
