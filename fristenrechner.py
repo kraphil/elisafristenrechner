@@ -141,7 +141,7 @@ def api_response_message():
 
 
 @app.route("/dayMoveOut", methods=["POST"])
-def api_response_message():
+def api_response_message2():
     referer = request.headers.get("Referer")
     if referer is None:
       referer = request.args.get("referer")
