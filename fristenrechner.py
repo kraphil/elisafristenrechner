@@ -14,6 +14,14 @@ logging.basicConfig( level=logging.INFO, format="%(asctime)s [%(levelname)s] %(m
     ]
 )
 
+def checkDateFormat(date):
+    try:
+        if date != datetime.strptime(date, '%d.%m.%Y').strftime('%d.%m.%Y'):
+            raise ValueError
+        return True
+    except ValueError:
+        return False
+
 
 #Ausgabe Tag des Kündigungstags bei Angabe Kündigungstermin (Tag des Auszugs)
 #Eingabe: Tag des Auszugs (Kündigungstermin)
@@ -102,12 +110,12 @@ app.config["DEBUG"] = True
 
 @app.route("/0.0.0.0", methods=["GET"])
 def defaultFunction():
-    return """<h1>Fristenrechner</h1>""" ###einmal anführungsstriche ergänzen
+    return """<h1>Fristenrechner</h1>""" 
 
 
 @app.route("/", methods=["GET"])  # localhost
 def home():
-    return """<h1>Fristenrechner</h1>""" ###einmal anführungsstriche ergänzen
+    return """<h1>Fristenrechner</h1>""" 
 
 
 @app.route("/noticePeriod", methods=["POST"])
@@ -126,7 +134,9 @@ def api_response_message():
     intent = extractIntent(message)
 
     if(len(intent) == 0):
-        DateTime = "No date time was detected!"
+        DateTime = "Es konnte kein Datum erkannt werden!"
+    elif (checkDateFormat(intent) == False):
+        DateTime = "Das Datumsformat ist nicht korrekt, es sollte das Format DD.MM.JJJJ haben."
     else:    
         DateTime = noticePeriod(intent)
     answer = createAnswer(conversationId, DateTime)
@@ -156,7 +166,9 @@ def api_response_message2():
     intent = extractIntent(message)
 
     if(len(intent) == 0):
-        DateTime = "No date time was detected!"
+        DateTime = "Es konnte kein Datum erkannt werden!"
+    elif (checkDateFormat(intent) == False):
+        DateTime = "Das Datumsformat ist nicht korrekt, es sollte das Format DD.MM.JJJJ haben."
     else:    
         DateTime = dayMoveOut(intent)
     answer = createAnswer(conversationId, DateTime)
