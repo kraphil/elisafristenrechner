@@ -67,11 +67,13 @@ def dayMoveOut(date):
     if fbdom >= date:
         date = date + relativedelta(months=+2)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strptime(dmo, "%d.%m.%Y")
         print(dmo)
         return dmo
     else:
         date = date + relativedelta(months=+3)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strptime(dmo, "%d.%m.%Y")
         print(dmo)
         return dmo
 
