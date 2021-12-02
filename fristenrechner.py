@@ -83,11 +83,18 @@ def dayMoveOut(date):
         return output
 
 
-def extractIntent(userMessage):
+def extractDate1(userMessage):
     if(len(userMessage) == 0):
         intent = ""
     else:
         intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstermin']
+    return intent
+
+def extractDate2(userMessage):
+    if(len(userMessage) == 0):
+        intent = ""
+    else:
+        intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstag']
     return intent
 
 def extractConversationId(userMessage):
@@ -141,7 +148,7 @@ def api_response_message():
     logging.info("____ message: %s", message)
 
     conversationId = extractConversationId(message)
-    intent = extractIntent(message)
+    intent = extractDate2(message)
 
     if(len(intent) == 0):
         DateTime = "Es konnte kein Datum erkannt werden!"
@@ -173,7 +180,7 @@ def api_response_message2():
     logging.info("____ message: %s", message)
 
     conversationId = extractConversationId(message)
-    intent = extractIntent(message)
+    intent = extractDate1(message)
 
     if(len(intent) == 0):
         DateTime = "Es konnte kein Datum erkannt werden!"
