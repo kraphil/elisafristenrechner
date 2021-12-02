@@ -4,6 +4,7 @@ import pandas as pd
 from pandas.tseries.offsets import MonthEnd
 import logging
 import json
+import requests
 
 import flask
 from flask import request
