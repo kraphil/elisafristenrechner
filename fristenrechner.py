@@ -40,13 +40,13 @@ def noticePeriod(date):
     if sundays > 0:
         latest_notice_date = date + timedelta(days=4)
         latest_notice_date = datetime.strftime(latest_notice_date, "%d.%m.%Y")
-        output = "Ihr Kündigungstag ist der"+latest_notice_date+"."
+        output = "Ihr Kündigungstag ist der "+latest_notice_date+"."
         print(output)
         return(output)
     else:
         latest_notice_date = date + timedelta(days=3)
         latest_notice_date = datetime.strftime(latest_notice_date, "%d.%m.%Y")
-        output = "Ihr Kündigungstag ist der"+latest_notice_date+"."
+        output = "Ihr Kündigungstag ist der "+latest_notice_date+"."
         print(output)
         return(output)
 
@@ -71,14 +71,14 @@ def dayMoveOut(date):
         date = date + relativedelta(months=+2)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
         dmo = datetime.strftime(dmo, "%d.%m.%Y")
-        output = "Ihr Kündigungstermin ist der"+dmo+"."
+        output = "Ihr Kündigungstermin ist der "+dmo+"."
         print(output)
         return output
     else:
         date = date + relativedelta(months=+3)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
         dmo = datetime.strftime(dmo, "%d.%m.%Y")
-        output = "Ihr Kündigungstermin ist der"+dmo+"."
+        output = "Ihr Kündigungstermin ist der "+dmo+"."
         print(output)
         return output
 
