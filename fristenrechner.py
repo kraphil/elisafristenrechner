@@ -71,7 +71,7 @@ def dayMoveOut(date):
         date = date + relativedelta(months=+2)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
         dmo = datetime.strftime(dmo, "%d.%m.%Y")
-        output = "Ihr Kündigungstermin ist der "+dmo+"."
+        output = "Ihr frühstmöglicher Kündigungstermin ist der "+dmo+"."
         print(output)
         return output
     else:
