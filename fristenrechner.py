@@ -77,7 +77,7 @@ def extractIntent(userMessage):
     if(len(userMessage) == 0):
         intent = ""
     else:
-        intent = userMessage['messages'][0]['data']['content']
+        intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstermin']
     return intent
 
 def extractConversationId(userMessage):
