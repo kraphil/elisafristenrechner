@@ -38,12 +38,12 @@ def noticePeriod(date):
             sundays = sundays + 1
     if sundays > 0:
         latest_notice_date = date + timedelta(days=4)
-        latest_notice_date = datetime.strptime(latest_notice_date, "%d.%m.%Y")
+        latest_notice_date = datetime.strftime(latest_notice_date, "%d.%m.%Y")
         print(latest_notice_date)
         return(latest_notice_date)
     else:
         latest_notice_date = date + timedelta(days=3)
-        latest_notice_date = datetime.strptime(latest_notice_date, "%d.%m.%Y")
+        latest_notice_date = datetime.strftime(latest_notice_date, "%d.%m.%Y")
         print(latest_notice_date)
         return(latest_notice_date)
 
@@ -67,13 +67,13 @@ def dayMoveOut(date):
     if fbdom >= date:
         date = date + relativedelta(months=+2)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
-        dmo = datetime.strptime(dmo, "%d.%m.%Y")
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
         print(dmo)
         return dmo
     else:
         date = date + relativedelta(months=+3)
         dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
-        dmo = datetime.strptime(dmo, "%d.%m.%Y")
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
         print(dmo)
         return dmo
 
