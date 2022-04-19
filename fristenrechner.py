@@ -24,8 +24,8 @@ def checkDateFormat(date):
     except ValueError:
         return False
 
-
-#Ausgabe Tag des Kündigungstags bei Angabe Kündigungstermin (Tag des Auszugs)
+#3-Monatsfrist
+#Ausgabe Tag des Kündigungstags bei Eingabe Kündigungstermin
 #Eingabe: Tag des Auszugs (Kündigungstermin)
 def noticePeriod(date):
     sundays = 0
@@ -82,7 +82,22 @@ def dayMoveOut(date):
         print(output)
         return output
 
+    
+#14-Tagefrist (Sonderregelung 549 II Nr. 2 BGB)
+#Ausgabe Tag des Kündigungstags bei Eingabe Kündigungstermin
+#Eingabe: Tag des Auszugs (Kündigungstermin)
+def noticePeriodSonder(date):
 
+#Ausgabe Tag des Auszugs (Kündigungstermin) bei Eingabe Kündigungstag
+#Eingabe: Kündigungstag
+def dayMoveOutSonder(date):
+
+#Ausgabe Tag des schnellstmöglichen Auszugs (Kündigungstermin) bei Eingabe Kündigungstag
+#Eingabe: Kündigungstag / Aktuelles Datum
+def dayMoveOutSonderFast(date):
+    
+    
+#Datum extrahieren
 def extractDate1(userMessage):
     if(len(userMessage) == 0):
         intent = ""
