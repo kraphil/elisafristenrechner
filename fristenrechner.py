@@ -83,18 +83,61 @@ def dayMoveOut(date):
         return output
 
     
-#14-Tagefrist (Sonderregelung 549 II Nr. 2 BGB)
+#14-Tagefrist (Sonderregelung 549 II Nr. 2 BGB: Kündigung spätestens am 15. eines Monats zum Ablauf des Monats)
 #Ausgabe Tag des Kündigungstags bei Eingabe Kündigungstermin
 #Eingabe: Tag des Auszugs (Kündigungstermin)
 def noticePeriodSonder(date):
+    
+    date = datetime.strptime(date, "%d.%m.%Y")
+    month = str(date.month)
+    print(month)
+    year = str(date.year)
+    print(year)
+    output = "Ihr spätester Kündigungstag ist der 15."+month+"."+year+"."
+    print(output)
+    return(output)
 
 #Ausgabe Tag des Auszugs (Kündigungstermin) bei Eingabe Kündigungstag
 #Eingabe: Kündigungstag
 def dayMoveOutSonder(date):
 
-#Ausgabe Tag des schnellstmöglichen Auszugs (Kündigungstermin) bei Eingabe Kündigungstag
-#Eingabe: Kündigungstag / Aktuelles Datum
-def dayMoveOutSonderFast(date):
+    date = datetime.strptime(date, "%d.%m.%Y")
+    day = date.day
+
+    if day <= 15:
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return(output)
+
+    else:
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(2)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return(output)
+
+#Ausgabe Tag des schnellstmöglichen Auszugs (Kündigungstermin) bei Eingabe aktuelles Datum
+#Eingabe: -; Wird aus aktuellem Datum bestimmt
+def dayMoveOutSonderFast():
+
+    date = datetime.now()
+    day = date.day
+
+    if day <= 15:
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr schnellstmöglicher Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return(output)
+
+    else:
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(2)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr schnellstmöglicher Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return(output)
     
     
 #Datum extrahieren
@@ -213,6 +256,93 @@ def api_response_message2():
       logging.debug("Request endpoint error: {0}".format(e))
     return ('{}', 200)
 
+@app.route("/noticePeriodSonder", methods=["POST"])
+def api_response_message3():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
+    message =  request.get_json(force=True)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    intent = extractDate2(message)
+
+    if(len(intent) == 0):
+        DateTime = "Es konnte kein Datum erkannt werden!"
+    elif (checkDateFormat(intent) == False):
+        DateTime = "Das Datumsformat ist nicht korrekt, es sollte das Format DD.MM.JJJJ haben."
+    else:    
+        DateTime = noticePeriodSonder(intent)
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
+
+@app.route("/dayMoveOutSonder", methods=["POST"])
+def api_response_message4():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
+    message =  request.get_json(force=True)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    intent = extractDate1(message)
+
+    if(len(intent) == 0):
+        DateTime = "Es konnte kein Datum erkannt werden!"
+    elif (checkDateFormat(intent) == False):
+        DateTime = "Das Datumsformat ist nicht korrekt, es sollte das Format DD.MM.JJJJ haben."
+    else:    
+        DateTime = dayMoveOutSonder(intent)
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
+
+@app.route("/dayMoveOutSonderFast", methods=["POST"])
+def api_response_message5():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
+    message =  request.get_json(force=True)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    #intent = extractDate1(message)
+
+    DateTime = dayMoveOutSonderFast()
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
 
 if __name__ == '__main__':
     app.run(debug=True)
