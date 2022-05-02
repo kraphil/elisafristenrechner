@@ -82,6 +82,36 @@ def dayMoveOut(date):
         print(output)
         return output
 
+#Ausgabe Tag des schnellstmöglichen Kündigungstermins
+def dayMoveOutFast():
+    sundays = 0
+    days = [0,1,2]
+    date = datetime.now()
+    fom = date.replace(day=1)
+    for n in days:
+        wd = timedelta(days=n)
+        bd = fom + wd
+        wdCheck = bd.weekday()
+        if wdCheck == 6:
+            sundays = sundays + 1
+    if sundays > 0:
+        fbdom = fom + timedelta(days=3)
+    else:
+        fbdom = fom + timedelta(days=2)
+    if fbdom >= date:
+        date = date + relativedelta(months=+2)
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr schnellstmöglicher Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return output
+    else:
+        date = date + relativedelta(months=+3)
+        dmo = pd.to_datetime(date, format='%Y-%m-%d') + MonthEnd(1)
+        dmo = datetime.strftime(dmo, "%d.%m.%Y")
+        output = "Ihr schnellstmöglicher Kündigungstermin ist der "+dmo+"."
+        print(output)
+        return output
     
 #14-Tagefrist (Sonderregelung 549 II Nr. 2 BGB: Kündigung spätestens am 15. eines Monats zum Ablauf des Monats)
 #Ausgabe Tag des Kündigungstags bei Eingabe Kündigungstermin
@@ -153,6 +183,20 @@ def extractDate2(userMessage):
         intent = ""
     else:
         intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstag']
+    return intent
+
+def extractDate3(userMessage):
+    if(len(userMessage) == 0):
+        intent = ""
+    else:
+        intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstag_sonder']
+    return intent
+
+def extractDate4(userMessage):
+    if(len(userMessage) == 0):
+        intent = ""
+    else:
+        intent = userMessage['messages'][0]['metaData']['slotFillingParameter']['kündigungstermin_sonder']
     return intent
 
 def extractConversationId(userMessage):
@@ -256,6 +300,32 @@ def api_response_message2():
       logging.debug("Request endpoint error: {0}".format(e))
     return ('{}', 200)
 
+@app.route("/dayMoveOutFast", methods=["POST"])
+def api_response_message6():
+    referer = request.headers.get("Referer")
+    if referer is None:
+      referer = request.args.get("referer")
+    referer = referer.replace("//", "https://")
+    # logging.info("____ referer: %s", referer)
+
+    endpointUrl = referer + "/api/v1/conversation/send"
+    message =  request.get_json(force=True)
+    logging.info("____ message: %s", message)
+
+    conversationId = extractConversationId(message)
+    #intent = extractDate1(message)
+
+    DateTime = dayMoveOutFast()
+    answer = createAnswer(conversationId, DateTime)
+    try:
+      # logging.info("____ endpointUrl: %s", endpointUrl)
+      # logging.info("Request data: {0}".format(answer))
+      response = requests.post(endpointUrl, data=answer, headers={'content-type': 'application/json'})
+      # logging.info("Request endpoint response: {0}".format(response))
+    except requests.exceptions.RequestException as e:
+      logging.debug("Request endpoint error: {0}".format(e))
+    return ('{}', 200)
+
 @app.route("/noticePeriodSonder", methods=["POST"])
 def api_response_message3():
     referer = request.headers.get("Referer")
@@ -269,7 +339,7 @@ def api_response_message3():
     logging.info("____ message: %s", message)
 
     conversationId = extractConversationId(message)
-    intent = extractDate2(message)
+    intent = extractDate3(message)
 
     if(len(intent) == 0):
         DateTime = "Es konnte kein Datum erkannt werden!"
@@ -300,7 +370,7 @@ def api_response_message4():
     logging.info("____ message: %s", message)
 
     conversationId = extractConversationId(message)
-    intent = extractDate1(message)
+    intent = extractDate4(message)
 
     if(len(intent) == 0):
         DateTime = "Es konnte kein Datum erkannt werden!"
